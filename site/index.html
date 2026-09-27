@@ -1,0 +1,198 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#263a29">
+  <meta name="description" content="小卖家真实利润账本：按月计算商品毛利、贡献利润、最终经营利润和保本营业额。">
+  <title>小卖家真实利润账本</title>
+  <link rel="icon" href="./favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="./assets/styles.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="header-inner">
+      <button class="brand-button" id="brand-home" type="button" aria-label="返回首页">
+        <span class="brand-mark">账</span>
+        <span><strong>真实利润账本</strong><small>小卖家月度经营结果</small></span>
+      </button>
+      <button class="header-link" id="header-history" type="button">历史月份</button>
+    </div>
+  </header>
+
+  <main class="app-shell">
+    <p id="app-status" class="sr-only" role="status" aria-live="polite"></p>
+
+    <section class="view active" id="view-home" data-view="home" aria-labelledby="home-heading">
+      <h1 id="home-heading" class="sr-only">月度利润首页</h1>
+      <div class="card month-card">
+        <label for="home-month">当前月份</label>
+        <input id="home-month" type="month" inputmode="numeric">
+      </div>
+
+      <div class="card empty-state" id="home-empty">
+        <h2>这个月还没有账本</h2>
+        <p>填入收入和成本，看看真正留下了多少钱。</p>
+        <button class="button primary" id="home-create" type="button">填写本月数据</button>
+      </div>
+
+      <div id="home-summary" hidden>
+        <div class="card hero-card">
+          <p class="eyebrow">最终经营利润</p>
+          <p class="hero-value"><span id="home-operating-profit">—</span><small>元</small></p>
+          <p class="hero-meta">净利润率 <span id="home-net-margin">—</span></p>
+        </div>
+        <div class="card metric-card">
+          <div class="metric-row"><span>商品毛利</span><strong><span id="home-gross-profit">—</span> 元</strong></div>
+          <div class="metric-row"><span>贡献利润</span><strong><span id="home-contribution-profit">—</span> 元</strong></div>
+          <div class="metric-row"><span>保本营业额</span><strong id="home-break-even">—</strong></div>
+          <p class="break-even-note" id="home-break-even-text">—</p>
+        </div>
+        <div class="button-stack">
+          <button class="button primary" id="home-edit" type="button">修改本月数据</button>
+          <button class="button secondary" id="home-view-result" type="button">查看完整结果</button>
+        </div>
+      </div>
+
+      <button class="button secondary full-button" id="home-history" type="button">查看历史月份</button>
+      <aside class="storage-notice">数据默认保存在当前浏览器和当前设备中。清理浏览器数据、更换设备可能导致记录丢失。</aside>
+    </section>
+
+    <section class="view" id="view-entry" data-view="entry" aria-labelledby="entry-heading" hidden>
+      <button class="back-button" data-go-home type="button">← 返回首页</button>
+      <div class="page-heading">
+        <p class="eyebrow dark">月度经营数据</p>
+        <h1 id="entry-heading">填写这个月的真实收支</h1>
+        <p>空金额按 0 计算。老板人工可选填。</p>
+      </div>
+
+      <form id="ledger-form" novalidate>
+        <div class="card">
+          <label class="field full-field" for="entry-month"><span>记账月份</span><input id="entry-month" name="month" type="month" required></label>
+        </div>
+
+        <div class="card form-section">
+          <h2><span>A</span> 收入</h2>
+          <div class="field-grid">
+            <label class="field" for="salesRevenue"><span>销售收入</span><input id="salesRevenue" name="salesRevenue" type="number" min="0" step="0.01" inputmode="decimal" placeholder="0"></label>
+            <label class="field" for="refunds"><span>退款金额</span><input id="refunds" name="refunds" type="number" min="0" step="0.01" inputmode="decimal" placeholder="0"></label>
+            <label class="field" for="otherIncome"><span>其他经营收入</span><input id="otherIncome" name="otherIncome" type="number" min="0" step="0.01" inputmode="decimal" placeholder="0"></label>
+            <label class="field" for="totalOrders"><span>总订单量</span><input id="totalOrders" name="totalOrders" type="number" min="0" step="1" inputmode="numeric" placeholder="0"></label>
+          </div>
+          <p class="formula-note">销售净收入 = 销售收入 − 退款金额 + 其他经营收入</p>
+        </div>
+
+        <div class="card form-section">
+          <h2><span>B</span> 商品成本</h2>
+          <fieldset class="mode-switch">
+            <legend class="sr-only">商品成本计算模式</legend>
+            <label><input type="radio" name="costMode" value="simple" checked> 简单模式</label>
+            <label><input type="radio" name="costMode" value="inventory"> 库存模式</label>
+          </fieldset>
+          <div id="simple-cost-fields">
+            <label class="field" for="simpleGoodsCost"><span>本月已售商品成本</span><input id="simpleGoodsCost" name="simpleGoodsCost" type="number" min="0" step="0.01" inputmode="decimal" placeholder="0"></label>
+          </div>
+          <div id="inventory-cost-fields" hidden>
+            <div class="field-grid">
+              <label class="field" for="openingInventory"><span>期初库存</span><input id="openingInventory" name="openingInventory" type="number" min="0" step="0.01" inputmode="decimal" placeholder="0"></label>
+              <label class="field" for="purchases"><span>本月采购</span><input id="purchases" name="purchases" type="number" min="0" step="0.01" inputmode="decimal" placeholder="0"></label>
+              <label class="field" for="closingInventory"><span>期末库存</span><input id="closingInventory" name="closingInventory" type="number" min="0" step="0.01" inputmode="decimal" placeholder="0"></label>
+            </div>
+            <p class="formula-note">已售商品成本 = 期初库存 + 本月采购 − 期末库存</p>
+          </div>
+        </div>
+
+        <div class="card form-section">
+          <h2><span>C</span> 卖货直接费用</h2>
+          <div class="field-grid" id="direct-fields"></div>
+        </div>
+
+        <div class="card form-section">
+          <h2><span>D</span> 店铺固定费用</h2>
+          <p class="section-note">老板自己的人工成本可选填；留空按 0 计算。</p>
+          <div class="field-grid" id="fixed-fields"></div>
+        </div>
+
+        <div class="card live-card" id="live-summary">
+          <span>预计最终经营利润</span>
+          <strong><span id="live-profit">0</span> 元</strong>
+        </div>
+        <div id="form-errors" class="error-box" role="alert" hidden></div>
+        <button class="button primary full-button submit-button" type="submit">保存并查看结果</button>
+      </form>
+    </section>
+
+    <section class="view" id="view-result" data-view="result" aria-labelledby="result-heading" hidden>
+      <button class="back-button" data-go-home type="button">← 返回首页</button>
+      <div class="page-heading result-heading">
+        <p class="eyebrow dark" id="result-month">—</p>
+        <h1 id="result-heading">本月真实经营结果</h1>
+      </div>
+
+      <div class="card hero-card result-hero">
+        <p class="eyebrow">最终经营利润</p>
+        <p class="hero-value"><span id="result-operatingProfit">—</span><small>元</small></p>
+        <p class="hero-meta">净利润率 <span id="result-netMargin">—</span></p>
+      </div>
+
+      <div class="result-grid">
+        <article class="card layer-card">
+          <p class="layer-label">第一层 · 商品</p><h2>商品毛利</h2>
+          <div class="metric-row"><span>销售净收入</span><strong><span id="result-netRevenue">—</span> 元</strong></div>
+          <div class="metric-row"><span>商品成本</span><strong><span id="result-goodsCost">—</span> 元</strong></div>
+          <div class="metric-row emphasis"><span>商品毛利</span><strong><span id="result-grossProfit">—</span> 元</strong></div>
+          <div class="metric-row"><span>毛利率</span><strong id="result-grossMargin">—</strong></div>
+        </article>
+        <article class="card layer-card">
+          <p class="layer-label">第二层 · 订单</p><h2>贡献利润</h2>
+          <div class="metric-row"><span>卖货直接费用</span><strong><span id="result-directExpenses">—</span> 元</strong></div>
+          <div class="metric-row emphasis"><span>贡献利润</span><strong><span id="result-contributionProfit">—</span> 元</strong></div>
+          <div class="metric-row"><span>贡献率</span><strong id="result-contributionMargin">—</strong></div>
+        </article>
+        <article class="card layer-card final-layer">
+          <p class="layer-label">第三层 · 最终经营</p><h2>店铺最后留下的钱</h2>
+          <div class="metric-row"><span>店铺固定费用</span><strong><span id="result-fixedExpenses">—</span> 元</strong></div>
+          <div class="metric-row emphasis"><span>最终经营利润</span><strong><span id="result-finalProfit">—</span> 元</strong></div>
+          <div class="metric-row"><span>净利润率</span><strong id="result-finalNetMargin">—</strong></div>
+        </article>
+      </div>
+
+      <div class="result-grid two-column">
+        <article class="card"><h2>平均每单</h2>
+          <div class="metric-row"><span>平均每单收入</span><strong id="result-averageOrderRevenue">—</strong></div>
+          <div class="metric-row"><span>平均每单利润</span><strong id="result-averageOrderProfit">—</strong></div>
+        </article>
+        <article class="card break-even-card"><h2>保本营业额</h2>
+          <p class="break-even-value" id="result-breakEvenRevenue">—</p>
+          <p class="break-even-note" id="result-breakEvenText">—</p>
+        </article>
+      </div>
+
+      <article class="card"><h2>钱主要花在哪里</h2><div id="cost-ranking" class="cost-ranking"></div></article>
+      <div class="button-stack">
+        <button class="button primary" id="result-edit" type="button">修改这个月</button>
+        <button class="button danger" id="result-delete" type="button">删除这个月</button>
+      </div>
+    </section>
+
+    <section class="view" id="view-history" data-view="history" aria-labelledby="history-heading" hidden>
+      <button class="back-button" data-go-home type="button">← 返回首页</button>
+      <div class="page-heading">
+        <p class="eyebrow dark">保存在本机的记录</p>
+        <h1 id="history-heading">历史月份</h1>
+        <p>按月份查看销售净收入和最终经营利润。</p>
+      </div>
+      <div id="history-list"></div>
+      <div class="card empty-state" id="history-empty" hidden>
+        <h2>还没有历史月份</h2><p>先填写一个月的数据，记录会保存在这里。</p>
+        <button class="button primary" id="history-create" type="button">填写第一个月份</button>
+      </div>
+      <button class="button secondary full-button" id="history-add" type="button">填写其他月份</button>
+      <aside class="storage-notice">记录只保存在此浏览器、此设备中，不会自动同步到其他设备。</aside>
+    </section>
+  </main>
+
+  <footer>小卖家真实利润账本 · H5 V1-A</footer>
+  <script type="module" src="./assets/app.js"></script>
+</body>
+</html>

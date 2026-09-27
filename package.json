@@ -1,0 +1,10 @@
+{
+  "name": "small-seller-profit-ledger-h5",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node tests/core-tests.mjs",
+    "test:browser": "node tests/browser-e2e.mjs"
+  }
+}

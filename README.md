@@ -2,6 +2,9 @@
 
 手机优先的纯静态 H5：选择月份、填写经营数据、查看三层利润与保本线，并在当前浏览器使用 `localStorage` 保存历史月份。
 
+- GitHub 仓库：<https://github.com/mina426w-ux/small-seller-profit-ledger-h5>
+- HTTPS 页面：<https://mina426w-ux.github.io/small-seller-profit-ledger-h5/>
+
 ## 与小程序版的关系
 
 H5 计算器从以下已经通过 11/11 测试的小程序计算模块移植，保持字段、公式、边界分支和结果结构一致：

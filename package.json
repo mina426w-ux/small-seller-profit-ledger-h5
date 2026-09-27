@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "test": "node tests/core-tests.mjs",
-    "test:browser": "node tests/browser-e2e.mjs"
+    "test:browser": "node tests/browser-e2e.mjs",
+    "test:structure": "node tests/validate-project.mjs"
   }
 }
